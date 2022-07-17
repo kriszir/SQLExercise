@@ -1,0 +1,440 @@
+swagger: "2.0"
+info:
+  description: "This is a server design for TCS to help the selection between interns"
+  version: "1.0.0"
+  title: "Internship Selection Helper"
+host: "intern-select.com"
+basePath: "/v2"
+tags:
+- name: "user"
+  description: "Operations about users"
+- name: "project"
+  description: "Here you can add, change, delete projects"
+- name: "position"
+  description: "Here you can see the details of the positions"
+- name: "interview"
+  description: "Here you can see the scheduled interviews"
+schemes:
+- "https"
+- "http"
+paths:
+
+  /interview:
+    post:
+      tags:
+      - "interview"
+      summary: "Add a new interview"
+      description: "This can only be done by the Sourcer"
+      operationId: "createInterview"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        required: true
+        schema:
+          $ref: '#/definitions/Interview'
+      responses:
+        default:
+         description: "successful operation"
+  /interview/{id}:
+    put:
+      tags:
+      - "interview"
+      summary: "Modify an interview"
+      operationId: "alterInterview"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        type: "integer"
+      responses:
+       "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/Interview"
+       "400":
+          description: "Invalid email supplied"
+       "404":
+          description: "User not found"
+      
+  /position:
+    post:
+      tags:
+      - "position"
+      summary: "Add a new position"
+      description: "This can only be done by the recruiter"
+      operationId: "createPosition"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        required: true
+        schema: 
+          $ref: '#/definitions/Position' 
+      responses:
+        default:
+          description: "successful operation"
+  /position/{positionName}:
+    put:
+      tags:
+      - "position"
+      summary: "change the attributes of the position, for example adding a new applicannt"
+      description: "This can only be done by the Sourcer"
+      operationId: "alterPositon"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "positionName"
+        in: "path"
+        required: true
+        type: "string"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/User"
+        "400":
+          description: "Invalid email supplied"
+        "404":
+          description: "User not found"
+        
+  /user:
+    post:
+      tags:
+      - "user"
+      summary: "Create user"
+      description: "This can only be done by the administrator."
+      operationId: "createUser"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Created user object"
+        required: true
+        schema:
+          $ref: "#/definitions/User"
+      responses:
+        default:
+          description: "successful operation"
+  /user/createWithArray:
+    post:
+      tags:
+      - "user"
+      summary: "Creates list of users with given input array"
+      description: "This can be done only by the administrator"
+      operationId: "createUsersWithArrayInput"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "List of user object"
+        required: true
+        schema:
+          type: "array"
+          items:
+            $ref: "#/definitions/User"
+      responses:
+        default:
+          description: "successful operation"
+ 
+  /user/login:
+    get:
+      tags:
+      - "user"
+      summary: "Logs user into the system"
+      description: ""
+      operationId: "loginUser"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "email"
+        in: "query"
+        description: "The user email for login"
+        required: true
+        type: "string"
+      - name: "password"
+        in: "query"
+        description: "The password for login in clear text"
+        required: true
+        type: "string"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            type: "string"
+          headers:
+            X-Rate-Limit:
+              type: "integer"
+              format: "int32"
+              description: "calls per hour allowed by the user"
+            X-Expires-After:
+              type: "string"
+              format: "date-time"
+              description: "date in UTC when token expires"
+        "400":
+          description: "Invalid email/password supplied"
+  /user/logout:
+    get:
+      tags:
+      - "user"
+      summary: "Logs out current logged in user session"
+      description: ""
+      operationId: "logoutUser"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters: []
+      responses:
+        default:
+          description: "successful operation"
+  /user/{email}:
+    get:
+      tags:
+      - "user"
+      summary: "Get user by email address"
+      operationId: "getUserByEmail"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "email"
+        in: "path"
+        required: true
+        type: "string"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/User"
+        "400":
+          description: "Invalid email supplied"
+        "404":
+          description: "User not found"
+    put:
+      tags:
+      - "user"
+      summary: "Updated user"
+      description: "This can only be done by the logged in user."
+      operationId: "updateUser"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "email"
+        in: "path"
+        description: "email that need to be updated"
+        required: true
+        type: "string"
+      - in: "body"
+        name: "body"
+        description: "Updated user object"
+        required: true
+        schema:
+          $ref: "#/definitions/User"
+      responses:
+        "400":
+          description: "Invalid user supplied"
+        "404":
+          description: "User not found"
+    delete:
+      tags:
+      - "user"
+      summary: "Delete user"
+      description: "This can only be done by the logged in user."
+      operationId: "deleteUser"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "email"
+        in: "path"
+        description: "The name that needs to be deleted"
+        required: true
+        type: "string"
+      responses:
+        "400":
+          description: "Invalid email supplied"
+        "404":
+          description: "User not found"
+          
+  /project:
+    post:
+      tags:
+      - "project"
+      summary: "Create a new project"
+      description: "This can only be done by the administrator"
+      operationId: "createProject"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        required: true
+        schema:
+          $ref: '#/definitions/Project'
+      responses:
+        default:
+          description: "succesful operation"
+  
+  /project/{projectName}:
+    get:
+      tags:
+      - "project"
+      summary: "Get project by name"
+      operationId: "getProjectByName"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "projectName"
+        in: "path"
+        required: true
+        type: "string"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/Project"
+        "400":
+          description: "Invalid email supplied"
+        "404":
+          description: "User not found"
+    put:
+      tags:
+      - "project"
+      summary: "Change the details of a project"
+      operationId: "changeProjectByName"
+      produces:
+      - "application/xml"
+      - "application/json"    
+      parameters:
+        - name: "projectName"
+          in: "path"
+          required: true
+          type: "string"
+      responses:
+        "400":
+          description: "Invalid project supplied"
+        "404":
+          description: "Project not found"
+    delete:
+      tags:
+      - "project"
+      summary: "Delete project"
+      operationId: "deleteProject"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "projectName"
+        in: "path"
+        required: true
+        type: "string"
+      responses:
+        "404":
+          description: "Project not found"
+  
+  
+definitions:
+  Position:
+    type: "object"
+    properties:
+      positionName:
+        type: "string"
+      isOpened:
+        type: "boolean"
+      emptySpaces:
+        type: "integer"
+        format: "int64"
+      applicants:
+        type: "array"
+        items:
+          $ref: '#/definitions/Candidate'
+       
+      
+  User:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      email:
+        type: "string"
+      firstName:
+        type: "string"
+      lastName:
+        type: "string"
+      password:
+        type: "string"
+      phone:
+        type: "string"
+      role  :
+        type: "string"
+        description: "User type like administrator, recruiter etc.."
+    xml:
+      name: "User"
+ 
+  Candidate:
+    type: "object"
+    properties:
+      email:
+        type: "string"
+      firstName:
+        type: "string"
+      lastName:
+        type: "string"
+      phone:
+        type: "string"
+    xml:
+      name: "Candidate"    
+  Project:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      projectName:
+        type: "string"
+      projectMembers: 
+        type: array
+        items:
+          $ref: '#/definitions/User'
+      deadline:
+        type: string
+    xml:
+      name: "Project"
+  Interview:
+    type: "object"
+    properties:
+      date: 
+        type: "string"
+      applicant:
+        type: "string"
+      interviewer:
+        type: "string"
+      interviewType:
+        type: "string"
+      id:
+        type: "integer"
+    xml:
+      name: "Interview"
+   
+        
+        
+externalDocs:
+  description: "Find out more about Swagger"
+  url: "http://swagger.io"
